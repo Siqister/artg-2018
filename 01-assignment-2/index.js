@@ -93,7 +93,7 @@ d3.csv('./data/hubway_trips_reduced.csv', parse, function(err,trips){
 	Hint: use Array.prototype.slice
 	YOUR CODE HERE:
 	***/
-	const top10RegisteredTrips = registeredTrips.slice();
+	const top10RegisteredTrips = registeredTrips.slice(5,9);
 	const bottom10RegisteredTrips = registeredTrips.slice(-10);
 	console.log(top10RegisteredTrips);
 	console.log(bottom10RegisteredTrips);
