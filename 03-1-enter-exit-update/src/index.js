@@ -40,11 +40,19 @@ d3.csv('./data/olympic_medal_count.csv', parse, function(err,data){
 	});
 
 	d3.select('.container').append('button').html('1960').on('click',function(){
-		//YOUR CODE HERE
+		const medalsCount1960 = data.map(function(d){
+			return {
+				country:d.country,
+				count:d.count_1960
+			}
+		});
+
+		redraw(medalsCount1960);
 	});
 
-	d3.select('.container').append('button').html('2012').on('click',function(){
-		//YOUR CODE HERE
+	d3.select('.container').append('button').html('2012').on('click', () => {
+		//Using arrow functions, much more concise
+		redraw(data.map(d => ({country:d.country, count:d.count_2012})));
 	});
 
 
@@ -52,6 +60,36 @@ d3.csv('./data/olympic_medal_count.csv', parse, function(err,data){
 
 function redraw(count){
 
-	console.log(count);
+	const top5 = count.sort(function(a,b){return b.count - a.count}).slice(0,5);
+
+	console.log(top5);
+
+	//Update selection
+	const countryNodeUpdate = plot
+		.selectAll('.country')
+		.data(top5, function(d){ return d.country; });
+
+	const countryNodeEnter = countryNodeUpdate.enter()
+		.append('g')
+		.attr('class','country') //what happens if we miss this line?
+	countryNodeEnter
+		.append('circle')
+		.attr('r', 0)
+		.style('fill','blue')
+		.style('stroke','black')
+		.style('stroke-width','2px');
+	countryNodeEnter.append('text').attr('text-anchor','middle').text(function(d){return d.country});
+
+	countryNodeEnter.merge(countryNodeUpdate)
+		.transition()
+		.duration(1000)
+		.attr('transform', function(d,i){
+			return `translate(${i * width/4},${height/2})`
+		})
+		.select('circle')
+		.attr('r', function(d){ return scaleRadius(d.count)})
+		.style('fill','white');
+
+	countryNodeUpdate.exit().remove();
 
 }
