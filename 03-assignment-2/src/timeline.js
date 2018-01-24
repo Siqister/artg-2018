@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 export default function timeline(data){
 
 	const rootDom = document.getElementById('timeline-multiple');
+	
 	const w = rootDom.clientWidth,
 		h = rootDom.clientHeight;
 	const margin = {t:50,r:50,b:50,l:50};

@@ -1,4 +1,4 @@
-# Implementing Reusability: First Attempt
+# Week 3 Assignment 2 - Implementing Reusability: First Attempt
 
 In class this week, we created an activity timeline of hubway trips across the system. This was a useful review of d3's data transformation (layout) and shape generator pipeline.
 
@@ -7,7 +7,6 @@ What if we wanted to implement small multiples of this activity timeline, one fo
 ## To start the project
 Navigate to `/03-assignment-2` folder, then run:
 ```
-npm install
 npm start
 ```
 

@@ -2,6 +2,12 @@
 
 These exercises are designed to (re)familiarize you with how JavaScript functions work. I suggest that you go through the readings posted in the syllabus, and then go through this code. Are all the outputs and behaviors what you expected? If not, why?
 
+## Getting started
+To launch this project, navigate to the project folder and run
+```
+python -m SimpleHTTPServer
+```
+
 ## Function scope
 
 Really only three things to remember at this point:
