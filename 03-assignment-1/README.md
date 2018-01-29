@@ -2,7 +2,7 @@
 
 With this assignment, you will build a visualization of Hubway activity levels by time of the day, using the `d3.histogram` layout module. First, if you don't know what is a histogram, please read up on it [here](https://en.wikipedia.org/wiki/Histogram). 
 
-![Histogram](./trip-activities?raw=true "trip activities")
+![Histogram](./trip-activities.jpg?raw=true "trip activities")
 
 You are only asked to complete a small part of this task. However, **it is important that you understand what the rest of the code is trying to do.**
 
