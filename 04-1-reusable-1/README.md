@@ -2,8 +2,6 @@
 
 In Assignment 1, we tried to capture all of the logic for creating an activity histogram into a function. In this assignment, that function, `activityHistogram`, has been moved into its own module in `/src/activityHistogram.js`.
 
-![small multiples](./small-multiples.jpg?raw=true "small multiples")
-
 With this reusable module/function, we are able to easily create "small multiples" of the activity histogram, one for each station.
 
 While mostly similar to what we tried to do in Assignment 1, this `activityHistogram` module differs in several regards. **The code for it is complete; your job is to carefully parse through this code and make sure you understand how it works.** Please bring your questions to class on Friday.

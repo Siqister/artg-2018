@@ -1,42 +1,32 @@
 import * as d3 from 'd3';
-import './style.css';
 
-import parse from './parse';
+export default function activityHistogram(data){
 
-console.log('Week 3 assignment 1: writing a reusable activity histogram');
+	//Need to append a the proper DOM scaffolding
+	const width = this.clientWidth; //What is "this"?
+	const height = this.clientHeight;
+	const margin = {t:15,r:25,b:25,l:25};
+	const w = width - margin.l - margin.r;
+	const h = height - margin.t - margin.b;
 
-//Set up DOM scaffolding
-const width = d3.select('#activity-histogram').node().clientWidth;
-const height = d3.select('#activity-histogram').node().clientHeight;
-const margin = {t:20,r:100,b:20,l:100};
-const w = width - margin.l - margin.r;
-const h = height - margin.t - margin.b;
-const plot = d3.select('#activity-histogram')
-	.append('svg')
-	.attr('width',width)
-	.attr('height',height)
-	.append('g')
-	.attr('class','acitivity-histogram-inner')
-	.attr('transform',`translate(${margin.l},${margin.t})`);
+	const svg = d3.select(this)
+		.selectAll('svg')
+		.data([1]); //What's going on here?
+	const svgEnter = svg.enter().append('svg')
+		.attr('width',width)
+		.attr('height',height);
+	svgEnter.append('g').attr('class','plot')
 
-//Import and parse data
-d3.csv('./data/hubway_trips_reduced.csv', parse, function(err,trips){
-
-	//Bind selection to the entire array of trips, one to one
-	plot
-		.datum(trips) //note: .datum(), not .data()
-		.each(activityHistogram);
-
-});
-
-function activityHistogram(data){
+	const plot = svg.merge(svgEnter)
+		.select('.plot')
+		.attr('transform',`translate(${margin.l},${margin.t})`);
 
 	//Transform data
 	//Group trips into discrete 15 minute bins, using the d3.histogram layout
 	const histogram = d3.histogram()
 		.value(d => d.time_of_day0)
 		.thresholds(d3.range(0,24,.25));
-	const tripsByQuarterHour = histogram(data)
+	const tripsByQuarterHour = histogram(data.values)
 		.map(d => {
 			return {
 				x0:d.x0, //left bound of the bin; 18.25 => 18:15
@@ -44,7 +34,6 @@ function activityHistogram(data){
 				volume:d.length
 			}
 		});
-	console.log(tripsByQuarterHour);
 
 	//Set up scales in the x and y direction
 	const scaleX = d3.scaleLinear().domain([0,24]).range([0,w]);
@@ -67,17 +56,36 @@ function activityHistogram(data){
 		});
 
 	//Draw
-	/*** YOUR CODE HERE ***/
+	//Bars
+	//Update
+	const binsUpdate = plot
+		.selectAll('.bin')
+		.data(tripsByQuarterHour);
 
+	//Enter
+	const binsEnter = binsUpdate.enter()
+		.append('rect')
+		.attr('class','bin') //If you forget this, what will happen if we re-run this the activityHistogram function?
+		.attr('x', d => scaleX(d.x0))
+		.attr('width', d => (scaleX(d.x1) - scaleX(d.x0)))
+		.attr('y', d => h)
+		.attr('height', 0);
 
+	//Enter + update
+	binsEnter.merge(binsUpdate)
+		.transition()
+		.duration(500)
+		.attr('x', d => scaleX(d.x0))
+		.attr('width', d => (scaleX(d.x1) - scaleX(d.x0)))
+		.attr('y', d => scaleY(d.volume))
+		.attr('height', d => (h - scaleY(d.volume)))
+		.style('fill','rgb(180,180,180)');
 
-
-
-
-	/*** YOUR CODE HERE ***/
+	//Exit
+	binsUpdate.exit().remove();
 
 	//Axis
-	const axisXNode = d3.select(this)
+	const axisXNode = plot
 		.selectAll('.axis-x')
 		.data([1]);
 	const axisXNodeEnter = axisXNode.enter()
@@ -87,7 +95,7 @@ function activityHistogram(data){
 		.attr('transform',`translate(0,${h})`)
 		.call(axisX);
 
-	const axisYNode = d3.select(this)
+	const axisYNode = plot
 		.selectAll('.axis-y')
 		.data([1]);
 	const axisYNodeEnter = axisYNode.enter()
