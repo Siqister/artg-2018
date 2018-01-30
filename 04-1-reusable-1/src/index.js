@@ -6,7 +6,7 @@ import './style.css';
 import parse from './parse';
 import activityHistogram from './activityHistogram';
 
-console.log('Week 3 assignment 2');
+console.log('Week 4 assignment 1');
 
 //Import and parse data
 d3.csv('./data/hubway_trips_reduced.csv', parse, function(err,trips){
@@ -27,6 +27,10 @@ d3.csv('./data/hubway_trips_reduced.csv', parse, function(err,trips){
 		.style('height','180px')
 		.style('float','left');
 	stationNodes.merge(stationNodesEnter)
-		.each(activityHistogram); //What arguments are we passing to activityHistogram?
+		.each(function(d,i){
+			console.log(d);
+			console.log(i);
+			console.log(this);
+		}); 
 
 });

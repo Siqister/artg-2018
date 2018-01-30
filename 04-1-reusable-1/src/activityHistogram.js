@@ -2,24 +2,10 @@ import * as d3 from 'd3';
 
 export default function activityHistogram(data){
 
-	//Need to append a the proper DOM scaffolding
-	const width = this.clientWidth; //What is "this"?
-	const height = this.clientHeight;
-	const margin = {t:15,r:25,b:25,l:25};
-	const w = width - margin.l - margin.r;
-	const h = height - margin.t - margin.b;
+	/*** Your code here ***/
+	//Build DOM scaffolding
 
-	const svg = d3.select(this)
-		.selectAll('svg')
-		.data([1]); //What's going on here?
-	const svgEnter = svg.enter().append('svg')
-		.attr('width',width)
-		.attr('height',height);
-	svgEnter.append('g').attr('class','plot')
-
-	const plot = svg.merge(svgEnter)
-		.select('.plot')
-		.attr('transform',`translate(${margin.l},${margin.t})`);
+	/*** Your code here ***/
 
 	//Transform data
 	//Group trips into discrete 15 minute bins, using the d3.histogram layout
