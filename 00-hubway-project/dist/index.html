@@ -5,22 +5,17 @@
 	</head>
 	<body>
 		<div class='app container-fluid'>
-			<div class='row upper'>
-				<div class='module' id='station-search'>
-					<input type='text' placeholder='select station' />
-				</div>
+			<div class='module' id='station-search'>
+				<input type='text' placeholder='select station' />
 			</div>
-			<div class='row lower'>
-				<div class='col-md-3 full-height main'>
-					<div class='module' id='timeline-main'></div>
-					<div class='module' id='duration-graph-main'></div>
-					<div class='module' id='trip-balance-main'></div>
-				</div>
-				<div class='col-md-9 full-height' id='station-list'>
-					<div id='station-index'></div>
-				</div>
+			<div class='side-bar'>
+				<div class='module' id='timeline-main'></div>
+				<div class='module' id='time-of-the-day-main'></div>
 			</div>
-		</div>
+			<div class='main'>
+				<div id='station-index'></div>
+			</div>
+			</div>
 		<script src='./bundle.js' type='text/javascript'></script>
 	</body>
 </html>
