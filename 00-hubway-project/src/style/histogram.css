@@ -1,0 +1,10 @@
+.histogram .axis .tick line{
+	stroke:rgba(255,255,255,.5);
+	stroke-dasharray: 2px 2px;
+}
+.histogram .axis .tick text{
+	fill:white;
+}
+.histogram .axis .domain{
+	display:none;
+}
