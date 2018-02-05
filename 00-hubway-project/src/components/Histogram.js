@@ -1,114 +1,175 @@
 import * as d3 from 'd3';
 import '../style/histogram.css';
 
-function histogram(data,i){
+function Histogram(_){
 
-	const root = this;
+	let _width;
+	let _height;
+	let _margin = {t:20,r:20,b:20,l:30};
+	let _value = () => {};
+	let _thresholds;
+	let _domain;
+	let _ticksX = 6;
+	let _ticksY = 5;
+	let _tickFormat = d => d;
+	let _maxY;
 
-	const width = root.clientWidth; 
-	const height = root.clientHeight;
-	const margin = {t:20,r:20,b:20,l:30};
-	const w = width - margin.l - margin.r;
-	const h = height - margin.t - margin.b;
+	function exports(data,i){
+		const root = this;
 
-	const svg = d3.select(root)
-		.classed('histogram',true)
-		.selectAll('svg')
-		.data([1]); //What's going on here?
-	const svgEnter = svg.enter().append('svg')
-		.attr('width',width)
-		.attr('height',height);
-	svgEnter.append('g').attr('class','plot')
+		const width = _width || root.clientWidth; 
+		const height = _height || root.clientHeight;
+		const w = width - _margin.l - _margin.r;
+		const h = height - _margin.t - _margin.b;
 
-	const plot = svg.merge(svgEnter)
-		.select('.plot')
-		.attr('transform',`translate(${margin.l},${margin.t})`);
+		const svg = d3.select(root)
+			.classed('histogram',true)
+			.selectAll('svg')
+			.data([1]); //What's going on here?
+		const svgEnter = svg.enter().append('svg')
+			.attr('width',width)
+			.attr('height',height);
+		svgEnter.append('g').attr('class','plot')
 
-	//Transform data
-	//Group trips into discrete 15 minute bins, using the d3.histogram layout
-	const histogram = d3.histogram()
-		.value(d => d.time_of_day0)
-		.thresholds(d3.range(0,24,.25));
-	const tripsByQuarterHour = histogram(data)
-		.map(d => {
-			return {
-				x0:d.x0, //left bound of the bin; 18.25 => 18:15
-				x1:d.x1,
-				volume:d.length
-			}
-		});
+		const plot = svg.merge(svgEnter)
+			.select('.plot')
+			.attr('transform',`translate(${_margin.l},${_margin.t})`);
 
-	//Set up scales in the x and y direction
-	const scaleX = d3.scaleLinear().domain([0,24]).range([0,w]);
-	const maxVolume = d3.max(tripsByQuarterHour, d => d.volume);
-	const scaleY = d3.scaleLinear().domain([0,maxVolume]).range([h,0]);
+		//Transform data
+		//Group trips into discrete 15 minute bins, using the d3.histogram layout
+		const histogram = d3.histogram()
+			.value(_value)
+			.thresholds(_thresholds)
+			.domain(_domain);
+		const binsData = histogram(data)
+			.map(d => {
+				return {
+					x0:d.x0, 
+					x1:d.x1,
+					y:d.length
+				}
+			});
 
-	//Set up axis generator
-	const axisY = d3.axisLeft()
-		.scale(scaleY)
-		.tickSize(-w)
-		.ticks(5);
+		//Set up scales in the x and y direction
+		const scaleX = d3.scaleLinear().domain(_domain).range([0,w]);
+		const maxY = _maxY || d3.max(binsData, d => d.y);
+		const scaleY = d3.scaleLinear().domain([0,maxY]).range([h,0]);
 
-	const axisX = d3.axisBottom()
-		.scale(scaleX)
-		.ticks(6)
-		.tickFormat(d => {
-			const time = +d;
-			const hour = Math.floor(time);
-			let min = Math.round((time-hour)*60);
-			min = String(min).length === 1? "0"+ min : min;
-			return `${hour}:${min}`
-		});
+		//Set up axis generator
+		const axisY = d3.axisLeft()
+			.scale(scaleY)
+			.tickSize(-w)
+			.ticks(_ticksY);
 
-	//Draw
-	//Bars
-	//Update
-	const binsUpdate = plot
-		.selectAll('.bin')
-		.data(tripsByQuarterHour);
+		const axisX = d3.axisBottom()
+			.scale(scaleX)
+			.ticks(_ticksX)
+			.tickFormat(_tickFormat);
 
-	//Enter
-	const binsEnter = binsUpdate.enter()
-		.append('rect')
-		.attr('class','bin') //If you forget this, what will happen if we re-run this the activityHistogram function?
-		.attr('x', d => scaleX(d.x0))
-		.attr('width', d => (scaleX(d.x1) - scaleX(d.x0)))
-		.attr('y', d => h)
-		.attr('height', 0);
+		//Draw
+		//Bars
+		//Update
+		const binsUpdate = plot
+			.selectAll('.bin')
+			.data(binsData);
 
-	//Enter + update
-	binsEnter.merge(binsUpdate)
-		.transition()
-		.duration(500)
-		.attr('x', d => scaleX(d.x0))
-		.attr('width', d => (scaleX(d.x1) - scaleX(d.x0)))
-		.attr('y', d => scaleY(d.volume))
-		.attr('height', d => (h - scaleY(d.volume)))
-		.style('fill','rgba(0,0,0,.1)');
+		//Enter
+		const binsEnter = binsUpdate.enter()
+			.append('rect')
+			.attr('class','bin') //If you forget this, what will happen if we re-run this the activityHistogram function?
+			.attr('x', d => scaleX(d.x0))
+			.attr('width', d => (scaleX(d.x1) - scaleX(d.x0)))
+			.attr('y', d => h)
+			.attr('height', 0);
 
-	//Exit
-	binsUpdate.exit().remove();
+		//Enter + update
+		binsEnter.merge(binsUpdate)
+			.transition()
+			.duration(500)
+			.attr('x', d => scaleX(d.x0))
+			.attr('width', d => (scaleX(d.x1) - scaleX(d.x0)))
+			.attr('y', d => scaleY(d.y))
+			.attr('height', d => (h - scaleY(d.y)))
+			.style('fill','rgba(0,0,0,.1)');
 
-	//Axis
-	const axisXNode = plot
-		.selectAll('.axis-x')
-		.data([1]);
-	const axisXNodeEnter = axisXNode.enter()
-		.append('g')
-		.attr('class','axis axis-x');
-	axisXNode.merge(axisXNodeEnter)
-		.attr('transform',`translate(0,${h})`)
-		.call(axisX);
+		//Exit
+		binsUpdate.exit().remove();
 
-	const axisYNode = plot
-		.selectAll('.axis-y')
-		.data([1]);
-	const axisYNodeEnter = axisYNode.enter()
-		.append('g')
-		.attr('class','axis axis-y');
-	axisYNode.merge(axisYNodeEnter)
-		.call(axisY);
+		//Axis
+		const axisXNode = plot
+			.selectAll('.axis-x')
+			.data([1]);
+		const axisXNodeEnter = axisXNode.enter()
+			.append('g')
+			.attr('class','axis axis-x');
+		axisXNode.merge(axisXNodeEnter)
+			.attr('transform',`translate(0,${h})`)
+			.call(axisX);
+
+		const axisYNode = plot
+			.selectAll('.axis-y')
+			.data([1]);
+		const axisYNodeEnter = axisYNode.enter()
+			.append('g')
+			.attr('class','axis axis-y');
+		axisYNode.merge(axisYNodeEnter)
+			.call(axisY);
+	}
+
+	exports.width = function(_){
+		if(typeof _ === 'undefined') return _width;
+		_width = _;
+		return this;
+	}
+	exports.height = function(_){
+		if(typeof _ === 'undefined') return _height;
+		_height = _;
+		return this;
+	}
+	exports.margin = function(_){
+		if(typeof _ === 'undefined') return _margin;
+		_margin = _;
+		return this;
+	}
+	exports.value = function(fn){
+		if(typeof fn === 'undefined') return _value;
+		_value = fn;
+		return this;
+	}
+	exports.thresholds = function(_){
+		if(typeof _ === 'undefined') return _thresholds;
+		_thresholds = _;
+		return this;
+	}
+	exports.domain = function(_){
+		if(typeof _ === 'undefined') return _domain;
+		_domain = _;
+		return this;
+	}
+	exports.ticksX = function(_){
+		if(typeof _ === 'undefined') return _ticksX;
+		_ticksX = _;
+		return this;
+	}
+	exports.ticksY = function(_){
+		if(typeof _ === 'undefined') return _ticksY;
+		_ticksY = _;
+		return this;
+	}
+	exports.tickFormat = function(fn){
+		if(typeof fn === 'undefined') return _tickFormat;
+		_tickFormat = fn;
+		return this;
+	}
+	exports.maxY = function(_){
+		if(typeof _ === 'undefined') return _maxY;
+		_maxY = _;
+		return this;
+	}
+
+
+	return exports;
 
 }
 
-export default histogram;
+export default Histogram;
