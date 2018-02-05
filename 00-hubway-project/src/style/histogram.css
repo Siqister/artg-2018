@@ -8,3 +8,10 @@
 .histogram .axis .domain{
 	display:none;
 }
+
+.station-node .axis .tick text{
+	fill:rgba(255,255,255,.5);
+}
+.station-node .axis .tick line{
+	stroke:rgba(255,255,255,.5);
+}

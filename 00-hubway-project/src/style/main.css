@@ -11,7 +11,7 @@ input:focus{
 body,text{
 	color:white;
 	fill:white;
-	font-family:'Miso';
+	font-family:'Miso', Arial, sans-serif;
 }
 
 /* Layout */
