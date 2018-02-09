@@ -7,6 +7,10 @@ function Histogram(_){
 	let _thresholds;
 	let _domain;
 	let _value = () => {}; //function
+	let _tickX = 6;
+	let _tickY = 5;
+	let _tickXFormat = d => d;
+	let _maxY = -Infinity;
 
 	function exports(data,i){
 		const root = this;
@@ -48,24 +52,18 @@ function Histogram(_){
 		//Set up scales in the x and y direction
 		const scaleX = d3.scaleLinear().domain(_domain).range([0,w]);
 		const maxVolume = d3.max(tripsByQuarterHour, d => d.volume);
-		const scaleY = d3.scaleLinear().domain([0,maxVolume]).range([h,0]);
+		const scaleY = d3.scaleLinear().domain([0, Math.max(_maxY,maxVolume)]).range([h,0]);
 
 		//Set up axis generator
 		const axisY = d3.axisLeft()
 			.scale(scaleY)
 			.tickSize(-w)
-			.ticks(5);
+			.ticks(_tickY);
 
 		const axisX = d3.axisBottom()
 			.scale(scaleX)
-			.ticks(6)
-			.tickFormat(d => {
-				const time = +d;
-				const hour = Math.floor(time);
-				let min = Math.round((time-hour)*60);
-				min = String(min).length === 1? "0"+ min : min;
-				return `${hour}:${min}`
-			});
+			.ticks(_tickX)
+			.tickFormat(_tickXFormat);
 
 		//Draw
 		//Bars
@@ -134,6 +132,34 @@ function Histogram(_){
 	exports.value = function(fn){
 		if(typeof fn ==='undefined') return _value;
 		_value = fn;
+		return this;
+	}
+
+	exports.tickX = function(_){
+		if(typeof _ ==='undefined') return _tickX;
+		_tickX = _;
+		return this;
+	}
+
+	exports.tickY = function(_){
+		if(typeof _ ==='undefined') return _tickY;
+		_tickY = _;
+		return this;
+	}
+
+	exports.tickXFormat = function(fn){
+		if(typeof fn ==='undefined') return _tickXFormat;
+		_tickXFormat = fn;
+		return this;
+	}
+
+	exports.margin = function(_){
+
+	}
+
+	exports.maxY = function(_){
+		if(typeof _ === 'undefined') return _maxY;
+		_maxY = _;
 		return this;
 	}
 
