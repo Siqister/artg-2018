@@ -3,7 +3,7 @@ import './style/main.css';
 import './style/stationSearch.css';
 
 //Import utility function
-import {parse} from './utils';
+import {parse, parse2} from './utils';
 
 //Import modules
 import activityHistogram from './components/Histogram';

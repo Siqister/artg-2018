@@ -34,9 +34,9 @@ function Timeline(_){
 
 }
 
-export default Timeline;
+//export default Timeline;
 
-function _timeline(data){
+export default function _timeline(data,i){
 
 	const width = this.clientWidth;
 	const height = this.clientHeight;
@@ -52,6 +52,7 @@ function _timeline(data){
 
 	const histogram = d3.histogram()
 		.value(d => d.t0)
+		//.value(function(d){return d.t0})
 		.thresholds(thresholds)
 		.domain(timeRange);
 
