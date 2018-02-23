@@ -1,54 +1,56 @@
 import * as d3 from 'd3';
 import Histogram from './Histogram';
 
+import '../style/main.css';
+
 function MainViz(_){
 
-	let _width;
-	let _height;
-	const activityHistogramMultiple = Histogram()
-		.value(d => d.time_of_day0)
-		.thresholds(d3.range(0,24,.25))
-		.domain([0,24])
-		.tickFormat(d => {
-			const time = +d;
-			const hour = Math.floor(time);
-			let min = Math.round((time-hour)*60);
-			min = String(min).length === 1? "0"+ min : min;
-			return `${hour}:${min}`
+	const timeline = Histogram()
+		.domain([new Date(2013,0,1), new Date(2013,11,31)])
+		.value(d => d.t0)
+		.thresholds(d3.timeMonth.range(new Date(2013,0,1), new Date(2013,11,31), 1))
+		.tickXFormat(d => {
+			return (new Date(d)).toUTCString();
 		})
-		.margin({t:30,r:20,b:30,l:35})
-		.ticksX(3)
-		.ticksY(2)
-		.maxY(40);
+		.tickX(3)
+		.tickY(2)
+		.maxY(400)
 
-	function exports(d,i){
+	function exports(data,i){
 
-		const root = this;
-		_width = this.clientWidth;
-		_height = this.clientHeight;
+		const width = this.clientWidth;
+		const height = this.clientHeight;
 
-		//Transform data
+		//data transformation
+		//nest by starting station
 		const tripsByStation = d3.nest()
 			.key(d => d.station0)
-			.entries(d)
-			.map(d => d.values);
+			.entries(data)
+			.map(d => {
+				return d.values;
+			});
 
-		//Build DOM
-		const stationNodes = d3.select(root)
+		console.log(tripsByStation);
+
+		//Create a node for each station
+		//call timeline module on each node
+		const stationNodes = d3.select(this)
 			.selectAll('.station-node')
-			.data(tripsByStation);
+			.data(tripsByStation); //update selection of size 0
 		const stationNodesEnter = stationNodes.enter()
 			.append('div')
-			.attr('class','station-node');
-		stationNodes.merge(stationNodesEnter)
-			.style('width','200px')
-			.style('height','120px')
-			.style('float','left')
-			.each(activityHistogramMultiple);
+			.classed('station-node',true)
+			.style('width','300px')
+			.style('height','180px')
+			.style('float','left');
+		stationNodes.exit().remove();
+
+		stationNodesEnter.merge(stationNodes)
+			.each(timeline);
 
 	}
 
 	return exports;
 }
 
-export default MainViz();
+export default MainViz;
