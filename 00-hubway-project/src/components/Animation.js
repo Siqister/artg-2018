@@ -15,8 +15,12 @@ function Animation(_){
 	const scaleSize = d3.scaleSqrt()
 		.domain([0,3000])
 		.range([3,20]);
+	//Force layout related
+	const force = d3.forceSimulation();
+	const collide = d3.forceCollide().radius(d => d.r + 2);
+	const radial = d3.forceRadial();
 
-	//
+	//Data
 	let tripsData;
 	let stationData;
 	let locationLookup;
@@ -41,6 +45,7 @@ function Animation(_){
 			return {
 				x,
 				y,
+				r:15,
 				...stn
 			}
 		});
@@ -81,16 +86,38 @@ function Animation(_){
 		const stationsEnter = stationsNodes.enter()
 			.append('g')
 			.attr('class','station');
-		stationsEnter.append('circle').attr('r',10).style('fill','none').style('stroke','rgba(255,255,255,.3)').style('stroke-width',1);
-		stationsEnter.append('text').text(d => d.id_short);
+		stationsEnter.append('circle').attr('r',15).style('fill','none').style('stroke','rgba(255,255,255,.3)').style('stroke-width',1);
+		stationsEnter.append('text').text(d => d.code3)
+			.attr('text-anchor','middle')
+			.style('font-size','8px')
+			.attr('dy','3px');
 		stationsEnter
 			.merge(stationsNodes)
 			.attr('transform', d => `translate(${d.x}, ${d.y})`);
 
+		//Initialize/update and compute a force layout from stationData
+		radial
+			.x(_w/2)
+			.y(_h/2)
+			.radius(Math.min(_w,_h)/2);
+		force
+			.force('collide',collide)
+			.force('radial',radial)
+			.alpha(1);
+
+		force
+			.on('tick',() => {
+				stationsEnter
+					.merge(stationsNodes)
+					.attr('transform', d => `translate(${d.x}, ${d.y})`);			
+			})
+			.on('end', () => {
+				renderFrame();
+			})
+			.nodes(stationData);
+
 		//Initialize animation
 		_t = d3.min(trips, d => d.t0); //Date object
-
-		renderFrame();
 
 	}
 
@@ -103,6 +130,7 @@ function Animation(_){
 
 		const bikePath2D = new Path2D();
 		const linePath2D = new Path2D();
+		const targetPath2D = new Path2D();
 
 		//We draw all the trips in progress at given point in time _t
 		tripsData.forEach(trip => {
@@ -126,8 +154,11 @@ function Animation(_){
 			bikePath2D.moveTo(x,y);
 			bikePath2D.arc(x,y,5,0,Math.PI*2);
 
-			linePath2D.moveTo(x0,y0);
+			linePath2D.moveTo(x,y);
 			linePath2D.lineTo(x1,y1);
+
+			targetPath2D.moveTo(x1,y1);
+			targetPath2D.arc(x1,y1,3,0,Math.PI*2);
 
 		});
 
@@ -135,6 +166,9 @@ function Animation(_){
 		ctx.fill(bikePath2D);
 		ctx.strokeStyle = 'rgb(255,255,255)';
 		ctx.stroke(linePath2D);
+		ctx.fillStyle = 'rgb(255,255,255)';
+		ctx.fill(targetPath2D);
+
 
 		//Increment _t up by a certain amount
 		//call the next animation frame
