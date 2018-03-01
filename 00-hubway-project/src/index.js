@@ -36,6 +36,21 @@ const activityHistogram = Histogram()
 
 const mainViz = MainViz(); //a closure
 
+const animation = Animation(
+		document.querySelector('.main') //DOM Node of <div class="main">
+	);
+
+// fetchCsv('./data/hubway_trips_reduced.csv', parse) //this a Promise, and it will give you the data in hubway_trips_reduced.csv
+// 	.then((resolvedValue) => {
+// 		console.log(resolvedValue)
+// 	})
+
+// const stationContainer = fetchCsv('./data/hubway_stations.csv', parseStation);
+// stationContainer
+// 	.then((resolvedValue) => {
+// 		console.log(resolvedValue);
+// 	})
+
 //Import data using the Promise interface
 Promise.all([
 		fetchCsv('./data/hubway_trips_reduced.csv', parse),
@@ -54,5 +69,7 @@ Promise.all([
 		// d3.select('.main')
 		// 	.datum(trips)
 		// 	.each(mainViz);
+
+		animation(trips, stations);
 
 	});
