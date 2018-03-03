@@ -186,6 +186,12 @@ function Animation(_){
 
 	}
 
+	exports.currentTime = function(_){
+		if(typeof _ === 'undefined') return _t;
+		_t = _;
+		return this;
+	}
+
 	return exports;
 
 }

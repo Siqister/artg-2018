@@ -13,6 +13,7 @@ function Histogram(_){
 	let _maxY = -Infinity;
 
 	//Internal event dispatch
+	const _dispatcher = d3.dispatch('x-axis:update');
 
 	function exports(data,i){
 		const root = this;
@@ -145,6 +146,8 @@ function Histogram(_){
 					.attr('x2',x)
 					.attr('y1',h)
 					.attr('y2',y);
+
+				_dispatcher.call('x-axis:update',null,scaleX.invert(x));
 			})
 			.on('mouseleave', () => {
 				mouseIndicator
@@ -201,6 +204,11 @@ function Histogram(_){
 	exports.maxY = function(_){
 		if(typeof _ === 'undefined') return _maxY;
 		_maxY = _;
+		return this;
+	}
+
+	exports.on = function(...args){
+		_dispatcher.on.apply(_dispatcher,args);
 		return this;
 	}
 

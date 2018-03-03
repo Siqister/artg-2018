@@ -21,10 +21,13 @@ const animation = Animation( document.querySelector('.main') );
 //--timeline
 
 //Import data using the Promise interface
-Promise.all([
+const dataStore = Promise.all([
 		fetchCsv('./data/hubway_trips_reduced.csv', parse),
 		fetchCsv('./data/hubway_stations.csv', parseStation)
-	]).then(([trips, stations]) => {
+	])
+
+dataStore
+	.then(([trips, stations]) => {
 
 		//Perform some basic data discovery
 		//What is the time range of the data set?
@@ -47,3 +50,10 @@ Promise.all([
 		animation(trips, stations);
 
 	});
+
+timeline.on('x-axis:update', time => {
+	animation.currentTime(new Date(time));
+});
+
+//Can you implement this?
+//animation.on('station:mouseenter', station => { ... });
