@@ -17,6 +17,7 @@ function Animation(_){
 		.range([3,20]);
 	//Force layout related
 	const force = d3.forceSimulation();
+	//Define some forces
 	const collide = d3.forceCollide().radius(d => d.r + 2);
 	const radial = d3.forceRadial();
 
@@ -27,7 +28,6 @@ function Animation(_){
 
 	let ctx;
 
-
 	function exports(trips, stations){
 
 		//_ ==> <div class='main'>
@@ -36,8 +36,6 @@ function Animation(_){
 
 		projection.translate([_w/2, _h/2]);
 
-		//Have DOM, data
-
 		//Data transformation
 		tripsData = trips;
 		stationData = stations.map(stn => {
@@ -45,7 +43,7 @@ function Animation(_){
 			return {
 				x,
 				y,
-				r:15,
+				r:15+ (Math.random()-.5)*10,
 				...stn
 			}
 		});
@@ -86,8 +84,9 @@ function Animation(_){
 		const stationsEnter = stationsNodes.enter()
 			.append('g')
 			.attr('class','station');
-		stationsEnter.append('circle').attr('r',15).style('fill','none').style('stroke','rgba(255,255,255,.3)').style('stroke-width',1);
+		stationsEnter.append('circle').attr('r', d => d.r).style('fill','rgb(0,0,150)');
 		stationsEnter.append('text').text(d => d.code3)
+			.style('fill','rgb(0,120,255)')
 			.attr('text-anchor','middle')
 			.style('font-size','8px')
 			.attr('dy','3px');
@@ -99,19 +98,20 @@ function Animation(_){
 		radial
 			.x(_w/2)
 			.y(_h/2)
-			.radius(Math.min(_w,_h)/2);
-		force
-			.force('collide',collide)
+			.radius(Math.min(_w,_h)/2 - 50);
+		force //the simulation
+			.force('collide',collide) //
 			.force('radial',radial)
 			.alpha(1);
 
 		force
-			.on('tick',() => {
+			.on('tick', ()=>{
+				//each step of the simulation
 				stationsEnter
 					.merge(stationsNodes)
-					.attr('transform', d => `translate(${d.x}, ${d.y})`);			
+					.attr('transform', d => `translate(${d.x}, ${d.y})`);
 			})
-			.on('end', () => {
+			.on('end', ()=>{
 				renderFrame();
 			})
 			.nodes(stationData);
@@ -131,6 +131,7 @@ function Animation(_){
 		const bikePath2D = new Path2D();
 		const linePath2D = new Path2D();
 		const targetPath2D = new Path2D();
+		const pastTripsPath2D = new Path2D();
 
 		//We draw all the trips in progress at given point in time _t
 		tripsData.forEach(trip => {
@@ -139,27 +140,34 @@ function Animation(_){
 
 			//calculate % completion
 			const pct = (_t.valueOf() - t0.valueOf())/(t1.valueOf() - t0.valueOf());
-			if(pct < 0 || pct > 1) return;
+			if(pct < 0 ) return; //trips haven't started
 
-			//trips in progress
 			const stn0 = locationLookup.get(station0); //d3.map() API
 			const stn1 = locationLookup.get(station1);
 			if(!stn0 || !stn1) return;
-
 			const x0 = stn0.x, y0 = stn0.y, x1 = stn1.x, y1 = stn1.y;
 
-			const x = (1-pct)*x0 + pct*x1;
-			const y = (1-pct)*y0 + pct*y1;
+			//trips so far (including those in progress and those in the past)
+			if(pct > 1){
+				//trips in the past
+				pastTripsPath2D.moveTo(x0,y0);
+				pastTripsPath2D.lineTo(x1,y1);
+			}else{
+				//trips in progress
+				const x = (1-pct)*x0 + pct*x1;
+				const y = (1-pct)*y0 + pct*y1;
 
-			bikePath2D.moveTo(x,y);
-			bikePath2D.arc(x,y,5,0,Math.PI*2);
+				bikePath2D.moveTo(x,y);
+				bikePath2D.arc(x,y,5,0,Math.PI*2);
 
-			linePath2D.moveTo(x,y);
-			linePath2D.lineTo(x1,y1);
+				linePath2D.moveTo(x,y);
+				linePath2D.lineTo(x1,y1);
 
-			targetPath2D.moveTo(x1,y1);
-			targetPath2D.arc(x1,y1,3,0,Math.PI*2);
+				targetPath2D.moveTo(x1,y1);
+				targetPath2D.arc(x1,y1,3,0,Math.PI*2);
 
+				ctx.fillText(trip.bike_nr, x+5, y+5);
+			}
 		});
 
 		ctx.fillStyle = 'rgb(255,255,0)';
@@ -168,7 +176,8 @@ function Animation(_){
 		ctx.stroke(linePath2D);
 		ctx.fillStyle = 'rgb(255,255,255)';
 		ctx.fill(targetPath2D);
-
+		ctx.strokeStyle = 'rgba(255,255,255,.05)';
+		ctx.stroke(pastTripsPath2D);
 
 		//Increment _t up by a certain amount
 		//call the next animation frame

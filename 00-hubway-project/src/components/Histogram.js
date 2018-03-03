@@ -166,4 +166,28 @@ function Histogram(_){
 	return exports;
 }
 
+//Default export (only one per module .js file)
 export default Histogram;
+
+//Named export (multiples allowed)
+export const timeline = Histogram()
+	.domain([new Date(2013,0,1), new Date(2013,11,31)])
+	.value(d => d.t0)
+	.thresholds(d3.timeMonth.range(new Date(2013,0,1), new Date(2013,11,31), 1))
+	.tickXFormat(d => {
+		return (new Date(d)).toUTCString();
+	})
+	.tickX(2);
+
+export const activityHistogram = Histogram()
+	.thresholds(d3.range(0,24,.5))
+	.domain([0,24])
+	.value(d => d.time_of_day0)
+	.tickXFormat(d => {
+		const time = +d;
+		const hour = Math.floor(time);
+		let min = Math.round((time-hour)*60);
+		min = String(min).length === 1? "0"+ min : min;
+		return `${hour}:${min}`
+	})
+	.maxY(1000);
