@@ -12,6 +12,8 @@ function Histogram(_){
 	let _tickXFormat = d => d;
 	let _maxY = -Infinity;
 
+	//Internal event dispatch
+
 	function exports(data,i){
 		const root = this;
 
@@ -113,6 +115,45 @@ function Histogram(_){
 			.attr('class','axis axis-y');
 		axisYNode.merge(axisYNodeEnter)
 			.call(axisY);
+
+		//Mouse indicator
+		let mouseIndicator = plot
+			.selectAll('.mouse-indicator')
+			.data([1]);
+		mouseIndicator = mouseIndicator.enter()
+			.append('line')
+			.attr('class','mouse-indicator')
+			.merge(mouseIndicator)
+			.style('stroke-width','1px')
+			.style('stroke','rgba(255,255,255,.5)');
+
+		//Mouse target
+		let mouseTarget = plot
+			.selectAll('.mouse-target')
+			.data([1]);
+		mouseTarget = mouseTarget.enter()
+			.append('rect')
+			.attr('class','mouse-target')
+			.merge(mouseTarget)
+			.attr('width',w)
+			.attr('height',h)
+			.style('fill-opacity',.01)
+			.on('mousemove', function(){
+				const [x,y] = d3.mouse(this);
+				mouseIndicator
+					.attr('x1',x)
+					.attr('x2',x)
+					.attr('y1',h)
+					.attr('y2',y);
+			})
+			.on('mouseleave', () => {
+				mouseIndicator
+					.attr('x1',0)
+					.attr('x2',0)
+					.attr('y1',0)
+					.attr('y2',0);
+			})
+
 	}
 
 	//Getter/setter
