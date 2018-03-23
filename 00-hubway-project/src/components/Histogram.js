@@ -12,6 +12,8 @@ function Histogram(_){
 	let _tickXFormat = d => d;
 	let _maxY = -Infinity;
 
+	const _dispatch = d3.dispatch('mousemove:x');
+
 	//Internal event dispatch
 
 	function exports(data,i){
@@ -139,12 +141,15 @@ function Histogram(_){
 			.attr('height',h)
 			.style('fill-opacity',.01)
 			.on('mousemove', function(){
+
 				const [x,y] = d3.mouse(this);
 				mouseIndicator
 					.attr('x1',x)
 					.attr('x2',x)
 					.attr('y1',h)
 					.attr('y2',y);
+
+				_dispatch.call('mousemove:x', null, scaleX.invert(x));
 			})
 			.on('mouseleave', () => {
 				mouseIndicator
@@ -201,6 +206,14 @@ function Histogram(_){
 	exports.maxY = function(_){
 		if(typeof _ === 'undefined') return _maxY;
 		_maxY = _;
+		return this;
+	}
+
+	exports.on = function(eventType, cb){
+		//eventType: string of event type
+		//cb: function
+
+		_dispatch.on(eventType, cb);
 		return this;
 	}
 
