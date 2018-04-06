@@ -31,7 +31,9 @@ const plot2 = select('.container')
 const nodes = Array.from({length:1000})
 	.map(v => {
 		return {
-			value:Math.random()
+			value:Math.random(),
+			x:Math.random(),
+			y:Math.random()
 		}
 	});
 console.log(nodes);
@@ -53,19 +55,24 @@ elements = elements.enter()
 const simulation = forceSimulation();
 //Force simulation can be customized by the addition of different forces
 const center = forceCenter(w/2,h/2);
-const xPos = forceX();
-const yPos = forceY();
+const xPos = forceX().x(d => d.value>.5?w*2/3:w/3);
+const yPos = forceY().y(h/2);
 const charge = forceManyBody().strength(.1);
-const collide = forceCollide().radius(d => d.value*10);
+const collide = forceCollide().radius(d => d.value*100);
 //Now customize the force layout
 simulation
 	.force('charge',charge)
 	.force('collide',collide)
-	//.force('xPos',xPos)
-	//.force('yPos',yPos)
+	.force('xPos',xPos)
+	.force('yPos',yPos)
 	.force('center',center)
-	.nodes(nodes)
+	.nodes(nodes) //simulation.start()
+
 	.on('tick', () => {
-		//YOUR CODE HERE
-	});
+		elements
+			.attr('transform', d => `translate(${d.x},${d.y})`);
+	})
+	.on('end', () => {
+		console.log('Simulation end');
+	})
 
