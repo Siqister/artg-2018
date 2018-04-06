@@ -52,4 +52,12 @@ timeline.on('mousemove:x', x => {
 	animation.time(new Date(x));
 })
 
+animation
+	.on('select:station', function(station){
+		console.log(station);
+		console.log(this);
+	})	
+	.on('unselect:station', () => {
+		console.log('Station is deselected')
+	})
 
