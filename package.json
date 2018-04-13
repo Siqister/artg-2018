@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "bootstrap": "^3.3.7",
-    "d3": "^4.12.2"
+    "d3": "^4.12.2",
+    "scrollmagic": "^2.0.5"
   }
 }
