@@ -1,11 +1,4 @@
-import {select,path,event,mouse,dispatch,
-	forceSimulation,
-	forceManyBody,
-	forceCenter,
-	forceCollide,
-	forceX,
-	forceY
-} from 'd3';
+import {select} from 'd3';
 import './style.css';
 
 const div = select('.container')
@@ -16,63 +9,23 @@ const h = div.node().clientHeight;
 //The first plot renders a force layout in <svg>
 const plot = div.append('svg')
 	.attr('width',w)
-	.attr('height',h);
-//The second plot renders a force layout in <canvas>
-const plot2 = select('.container')
-	.append('div')
-	.classed('module',true)
-	.attr('width',w)
 	.attr('height',h)
-	.append('canvas')
-	.attr('width',w)
-	.attr('height',h);
+	.attr('transform','translate(50,0)')
 
-//Create an array of node elements
-const nodes = Array.from({length:1000})
-	.map(v => {
-		return {
-			value:Math.random(),
-			x:Math.random(),
-			y:Math.random()
-		}
-	});
-console.log(nodes);
+plot.append('circle')
+	.attr('cx',100)
+	.attr('cy',100)
+	.attr('r',10)
+	.attr('class','circle-1');
 
-//Visual representation of these nodes
-let elements = plot
-	.selectAll('.element')
-	.data(nodes);
-elements = elements.enter()
+plot.append('g')
+	.attr('class','group-1')
+	.attr('transform','translate(250,50)')
 	.append('rect')
-	.classed('element',true)
-	.merge(elements)
-	.attr('x',-5)
-	.attr('y',-5)
-	.attr('width',10)
-	.attr('height',10);
+	.attr('class','rect-1')
+	.attr('width',300)
+	.attr('height',50);
 
-//Create a force layout
-const simulation = forceSimulation();
-//Force simulation can be customized by the addition of different forces
-const center = forceCenter(w/2,h/2);
-const xPos = forceX().x(d => d.value>.5?w*2/3:w/3);
-const yPos = forceY().y(h/2);
-const charge = forceManyBody().strength(.1);
-const collide = forceCollide().radius(d => d.value*100);
-//Now customize the force layout
-simulation
-	.force('charge',charge)
-	.force('collide',collide)
-	.force('xPos',xPos)
-	.force('yPos',yPos)
-	.force('center',center)
-	.nodes(nodes) //simulation.start()
-
-	.on('tick', () => {
-		elements
-			.attr('transform', d => `translate(${d.x},${d.y})`);
-	})
-	.on('end', () => {
-		console.log('Simulation end');
-	})
-
+console.log(plot.select('.circle-1').node().getBoundingClientRect())
+console.log(plot.select('.group-1').node().getBoundingClientRect())
+console.log(plot.select('.rect-1').node().getBoundingClientRect())
