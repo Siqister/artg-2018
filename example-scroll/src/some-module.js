@@ -30,10 +30,14 @@ function SomeModule(){
 			.attr('cx',0)
 			.attr('cy',height/2);
 	}
-
+	
 	exports.changeState = state => {
+		console.log(state);
+
 		circleNode.transition()
-			.attr('cx', state);
+			.attr('cx',state.x)
+			.attr('cy',state.y)
+			.attr('r',state.r);
 	}
 
 	return exports;

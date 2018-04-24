@@ -35,11 +35,24 @@ const scene2 = new Scrollmagic.Scene({
 		select('.app-container')
 			.style('background','blue');
 
+		someModule.changeState({
+			x:300,
+			y:500,
+			r:30
+		});
+
 	})
 	.on('leave', () => {
 		console.log('Scene-2:end')
 		select('.app-container')
 			.style('background','yellow');
+
+		someModule.changeState({
+			x:0,
+			y:100,
+			r:5
+		});
+
 
 	})
 	.addTo(controller);
